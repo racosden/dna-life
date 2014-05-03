@@ -25,6 +25,8 @@ JGZ  x  ; jump to instruction x if sense memory is > 0
 JLZ  x	; jump to instruction x if sense memory is < 0
 JEZ  x	; jump to instruction x if sense memory is = 0
 
+JMP  x	; jump to instruction x (unconditional)
+
 JEQ  x	; jump to instruction x if sense memory is equal to the value in the accumulator
 STO  x	; store x in the accumulator.
 CPY  x	; copy the sense memory to the accumulator (x is ignored)
