@@ -7,6 +7,9 @@ BOUNDARIES = True
 
 MAX_X = MAX_Y = 1000
 
+EMPTY_SPACE = 0
+FOOD_SPACE = range(1, 21)
+
 NORTH = (0, -1)
 EAST  = (1, 0)
 SOUTH = (0, 1)
@@ -48,6 +51,7 @@ class Organism(object):
             print "Current position    =\t(%d, %d)" % self.pos
             print "Facing              =\t%s" % facing_text
             print "Sense memory        =\t%d" % self.sense
+            print "Energy              =\t%d" % self.energy_level
             print "Current instruction =\t%s" % (current_instruction,)
 
         self.ip = self.ip + 1
@@ -115,12 +119,26 @@ class Organism(object):
 
             self.sense = arena[end_pos]
 
+        if "EAT" in current_instruction:
+            x, y = self.facing
+
+            # get the value of the space in front of the organism
+
+            target_pos = (self.pos[0] + x, self.pos[1] + y)
+            target = arena[target_pos]
+
+            if target in FOOD_SPACE:
+                # food is in front of the organism, so eat it.
+                self.energy_level += target
+                # once food is eaten, it's gone
+                arena[target_pos] = EMPTY_SPACE
+
 
 def main():
     tick = 1
     # dna1 = [('MOV' 1), ('TUR' 1), ('MOV' 1), ('TUL' 1)]
     # dna2 = [('MOV', 2), ('TUR', 1), ('TUR', 1), ('MOV', 1), ('TUL', 1)]
-    dna2 = [('SEN', 1)]
+    dna2 = [('SEN', 1), ('EAT', 1), ('EAT', 1)]
     #ecoli = Organism((0,0), EAST, dna1)
     bcoli = Organism((10, 10), SOUTH, dna2)
 
@@ -129,13 +147,14 @@ def main():
 
     arena[10, 11] = 10 # put food directly in front of bcoli
 
-    for i in xrange(2):
+    for i in xrange( len( dna2 ) + 1 ):
         print "\nTick\t\t    =\t%d" % tick
         tick = tick + 1
         # print "Ecoli:"
         # ecoli.run()
         print "Bcoli:"
         bcoli.run(arena)
+        raw_input("Next > ")
 
 if __name__ == '__main__':
     main()
