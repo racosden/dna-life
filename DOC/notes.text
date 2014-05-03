@@ -1,0 +1,47 @@
+Life sim game
+
+This game will consist of several organisms that will compete for resources (i.e. food) on a finite two dimensional grid.
+The organisms will consist of a 'memory' which will store "strings" of DNA that will tell it what to do, a 'sense memory'
+which will store sensory data, an 'accumulator' for programming advanced functions, an instruction pointer (ip) which
+will hold the location of the currently executing DNA instruction, a position in (x, y) form, a direction, an energy level
+which will go up as the organism eats, and will go down as the organism moves and senses, and an age which will increase
+by one for each iteration (and will lead to death by old age if it doesn't starve first).
+
+The DNA will be a list of tuples.  Each tuple will consist of an op-code and an op-rand as follows:
+
+[ ('MOV', 1), ('TUR', 1), ('EAT', 1) ]
+
+List of op-codes:
+
+MOV  x	; move x units forward
+TUR  x	; turn right 90 degrees (x is ignored)
+TUL  x	; turn left 90 degrees (x is ignored)
+SEN  x	; sense block x units forward, store type in sense memory
+EAT  x	; attempt to eat the block directly in front of the organism (x is ignored)
+
+The following op-codes will be used more for 'programming' in advanced organisms.
+
+JGZ  x  ; jump to instruction x if sense memory is > 0
+JLZ  x	; jump to instruction x if sense memory is < 0
+JEZ  x	; jump to instruction x if sense memory is = 0
+
+JEQ  x	; jump to instruction x if sense memory is equal to the value in the accumulator
+STO  x	; store x in the accumulator.
+CPY  x	; copy the sense memory to the accumulator (x is ignored)
+ADD  x	; add x to the accumulator (-x to subtract)
+NOP  x	; do nothing (x is ignored)
+
+Energy is depleted at each cycle at the following rates:
+
+NOP:   	  	1
+MOV:		x * 2
+SEN:		x ^ 2
+TUR / TUL:	1
+EAT:  		1
+
+Simulation board:
+
+Each position on the board will be one of the following types:
+0    =	      empty
+1-20 =	      food (number is the energy value)
+21-  =	      organism
