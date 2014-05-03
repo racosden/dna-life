@@ -57,13 +57,13 @@ class Organism(object):
         self.ip = self.ip + 1
 
         if "MOV" in current_instruction:
-            print current_instruction
             length = current_instruction[1]
-            print length
             x, y = self.facing
             while (length > 0):
                 self.pos = (self.pos[0] + x, self.pos[1] + y)
                 length = length - 1
+                # deplete energy by 2 units for each movement
+                self.energy_level -= 2
 
             # if (DEBUG):
             #     print "New Position = (%d, %d)" % self.pos
@@ -76,6 +76,9 @@ class Organism(object):
 
             self.facing = newfacing
 
+            # deplete energy by 1 unit for each turn
+            self.energy_level -= 1
+
         if "TUL" in current_instruction:
             try:
                 newfacing = DIRLIST[DIRLIST.index(self.facing) - 1]
@@ -83,6 +86,9 @@ class Organism(object):
                 newfacing = DIRLIST[-1]
 
             self.facing = newfacing
+
+            # deplete energy by 1 unit for each turn
+            self.energy_level -= 1
 
         if "SEN" in current_instruction:
             start_pos = self.pos
@@ -119,6 +125,9 @@ class Organism(object):
 
             self.sense = arena[end_pos]
 
+            # deplete energy by length ** 2
+            self.energy_level -= length ** 2
+
         if "EAT" in current_instruction:
             x, y = self.facing
 
@@ -132,6 +141,9 @@ class Organism(object):
                 self.energy_level += target
                 # once food is eaten, it's gone
                 arena[target_pos] = EMPTY_SPACE
+
+            # deplete energy by 1 unit
+            self.energy_level -= 1
 
 
 def main():
@@ -148,13 +160,14 @@ def main():
     arena[10, 11] = 10 # put food directly in front of bcoli
 
     for i in xrange( len( dna2 ) + 1 ):
-        print "\nTick\t\t    =\t%d" % tick
-        tick = tick + 1
+        # print "\nTick\t\t    =\t%d" % tick
         # print "Ecoli:"
         # ecoli.run()
         print "Bcoli:"
         bcoli.run(arena)
-        raw_input("Next > ")
+        rw_string = "Next (tick = " + str(tick) + ") > "
+        raw_input(rw_string)
+        tick = tick + 1
 
 if __name__ == '__main__':
     main()

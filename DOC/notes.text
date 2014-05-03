@@ -35,7 +35,7 @@ Energy is depleted at each cycle at the following rates:
 
 NOP:   	  	1
 MOV:		x * 2
-SEN:		x ^ 2
+SEN:		x ** 2
 TUR / TUL:	1
 EAT:  		1
 
