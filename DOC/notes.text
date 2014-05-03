@@ -25,7 +25,7 @@ JGZ  x  ; jump to instruction x if sense memory is > 0
 JLZ  x	; jump to instruction x if sense memory is < 0
 JEZ  x	; jump to instruction x if sense memory is = 0
 
-JMP  x	; jump to instruction x (unconditional)
+JMP  x	; jump to instruction x (unconditional).  If x is greater than the total length of memory, do nothing.
 
 JEQ  x	; jump to instruction x if sense memory is equal to the value in the accumulator
 STO  x	; store x in the accumulator.
@@ -40,6 +40,8 @@ MOV:		x * 2
 SEN:		x ** 2
 TUR / TUL:	1
 EAT:  		1
+
+JMP:		1
 
 Simulation board:
 

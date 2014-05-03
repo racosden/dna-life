@@ -79,6 +79,9 @@ class Organism(object):
             # deplete energy by 1 unit for each turn
             self.energy_level -= 1
 
+            if (DEBUG):
+                print "In TUR!"
+
         if "TUL" in current_instruction:
             try:
                 newfacing = DIRLIST[DIRLIST.index(self.facing) - 1]
@@ -145,12 +148,31 @@ class Organism(object):
             # deplete energy by 1 unit
             self.energy_level -= 1
 
+        if "JMP" in current_instruction:
+            destination = current_instruction[1]
+
+            # only jump if destination is in memory
+            # how should this fail?
+            # right now it fails silently by not doing anything
+            # perhaps make it jump to ip 0 on failure
+
+            if destination <= len(self.memory):
+                self.ip = destination
+
+            # deplete energy by 1 unit
+            self.energy_level -= 1
+
 
 def main():
     tick = 1
     # dna1 = [('MOV' 1), ('TUR' 1), ('MOV' 1), ('TUL' 1)]
     # dna2 = [('MOV', 2), ('TUR', 1), ('TUR', 1), ('MOV', 1), ('TUL', 1)]
-    dna2 = [('SEN', 1), ('EAT', 1), ('EAT', 1)]
+    dna2 = [ ('SEN', 1),        # Sense 1 unit in front
+             ('EAT', 1),        # Attempt to eat
+             ('EAT', 1),        # Eat again
+             ('JMP', 0),        # Jump to first instruction
+             ('TUR', 1)         # Should never be reached
+             ]
     #ecoli = Organism((0,0), EAST, dna1)
     bcoli = Organism((10, 10), SOUTH, dna2)
 
