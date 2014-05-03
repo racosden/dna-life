@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import numpy as np
+import random
 
 DEBUG = True
 BOUNDARIES = True
@@ -27,7 +28,7 @@ class Organism(object):
         self.age          = 0
         self.memory       = memory
         self.sense        = 0
-        self.acc          = []
+        self.accumulator  = 0
     def run(self, arena):
         current_instruction = ""
 
@@ -51,6 +52,7 @@ class Organism(object):
             print "Current position    =\t(%d, %d)" % self.pos
             print "Facing              =\t%s" % facing_text
             print "Sense memory        =\t%d" % self.sense
+            print "Accumulator         =\t%d" % self.accumulator
             print "Energy              =\t%d" % self.energy_level
             print "Current instruction =\t%s" % (current_instruction,)
 
@@ -148,7 +150,36 @@ class Organism(object):
             # deplete energy by 1 unit
             self.energy_level -= 1
 
+        if "JGZ" in current_instruction:
+            # jump if sense is greater than 0
+
+            destination = current_instruction[1]
+
+            if self.sense > 0:
+                if destination <= len(self.memory):
+                    self.ip = destination
+
+        if "JLZ" in current_instruction:
+            # jump if sense is less than 0
+
+            destination = current_instruction[1]
+
+            if self.sense < 0:
+                if destination <= len(self.memory):
+                    self.ip = destination
+
+        if "JEZ" in current_instruction:
+            # jump if sense is equal to 0
+
+            destination = current_instruction[1]
+
+            if self.sense == 0:
+                if destination <= len(self.memory):
+                    self.ip = destination
+
         if "JMP" in current_instruction:
+            # unconditional jump
+
             destination = current_instruction[1]
 
             # only jump if destination is in memory
@@ -162,34 +193,129 @@ class Organism(object):
             # deplete energy by 1 unit
             self.energy_level -= 1
 
+        if "JEQ" in current_instruction:
+            # jump if sense memory is equal to the accumulator
+
+            destination = current_instruction[1]
+
+            if self.sense == self.accumulator:
+                if destination <= len(self.memory):
+                    self.ip = destination
+
+            # deplete energy by 1 unit
+            self.energy_level -= 1
+
+        if "STO" in current_instruction:
+            # store x in the accumulator
+
+            self.accumulator = current_instruction[1]
+
+            self.energy_level -= 1
+
+        if "CPY" in current_instruction:
+            # copy the sense memory to the accumulator (x is ignored)
+
+            self.accumulator = self.sense
+
+            self.energy_level -= 1
+
+        if "ADD" in current_instruction:
+            # add x to the accumulator
+
+            addend = current_instruction[1]
+            self.accumulator += addend
+
+            self.energy_level -= 1
+
+        if "JAL" in current_instruction:
+            # jump to instruction x if accumulator is < 0
+
+            destingation = current_instruction[1]
+
+            if self.accumulator < 0:
+                if destination <= len(self.memory):
+                    self.ip = destination
+
+        if "JAG" in current_instruction:
+            # jump to instruction x if accumulator is > 0
+
+            destination = current_instruction[1]
+
+            if self.accumulator > 0:
+                if destination <= len(self.memory):
+                    self.ip = destination
+
+        if "JAE" in current_instruction:
+            # jump to instruction x if accumulator is = 0
+
+            destination = current_instruction[1]
+
+            if self.accumulator == 0:
+                if destination <= len(self.memory):
+                    self.ip = destination
+
+        if "RND" in current_instruction:
+            # add random number from 0 to 1 to the accumulator
+
+            addend = random.randint(0, 1)
+            self.accumulator += addend
+
+            self.energy_level -= 1
+
+        if "CRD" in current_instruction:
+            # set accumulator to 0 then add a random number from 0 to 1 to accumulator
+
+            maxrange = current_instruction[1]
+
+            addend = random.randint(0, maxrange)
+            self.accumulator = addend
+
+            self.energy_level -= 1
+
+        if "NOP" in current_instruction:
+            # do nothing
+
+            self.energy_level -= 1
 
 def main():
     tick = 1
-    # dna1 = [('MOV' 1), ('TUR' 1), ('MOV' 1), ('TUL' 1)]
-    # dna2 = [('MOV', 2), ('TUR', 1), ('TUR', 1), ('MOV', 1), ('TUL', 1)]
-    dna2 = [ ('SEN', 1),        # Sense 1 unit in front
-             ('EAT', 1),        # Attempt to eat
-             ('EAT', 1),        # Eat again
-             ('JMP', 0),        # Jump to first instruction
-             ('TUR', 1)         # Should never be reached
+    dna2 = [ ('CRD', 1),        # 0 pick a random direction
+             ('JAE', 4),        # 1 if 0 in accumulator, turn left
+             ('TUR', 0),        # 2 turn right
+             ('JMP', 5),        # 3 jump to movement
+             ('TUL', 0),        # 4 turn left
+             ('MOV', 1),        # 5 move forward 1
+             ('CRD', 1),        # 6 keep moving?
+             ('JAE', 5),        # 7 yes, keep moving
+             ('SEN', 1),        # 8 see if there's some food here
+             ('JEZ', 16),       # 9 if sense is 0, no food here, otherwise:
+             ('STO', 20),       # 10 store 20 in accumulator to check for food
+             ('JEQ', 15),       # 11 food worth acc here, jump to X to eat it!
+             ('ADD', -1),       # 12 acc -= 1
+             ('JAE', 16),       # 13 acc = 0, no food here :(
+             ('JMP', 11),       # 13 cycle through the food values
+             ('EAT', 0),        # 15 there is food here, eat it
+             ('NOP', 0)         # 16 All done
              ]
-    #ecoli = Organism((0,0), EAST, dna1)
-    bcoli = Organism((10, 10), SOUTH, dna2)
+
+    ecoli = Organism((10, 10), SOUTH, dna2)
 
     arena = np.zeros((MAX_X, MAX_Y))
-    arena[bcoli.pos] = 1
+    arena[ecoli.pos] = 1
 
     arena[10, 11] = 10 # put food directly in front of bcoli
 
-    for i in xrange( len( dna2 ) + 1 ):
-        # print "\nTick\t\t    =\t%d" % tick
-        # print "Ecoli:"
-        # ecoli.run()
-        print "Bcoli:"
-        bcoli.run(arena)
+    quit = False
+
+    while quit == False:
+        print "Ecoli:"
+        ecoli.run(arena)
         rw_string = "Next (tick = " + str(tick) + ") > "
-        raw_input(rw_string)
+        uinput = raw_input(rw_string)
         tick = tick + 1
+        if len(uinput) > 0:
+            if uinput.lower()[0] == 'q':
+                quit = True
 
 if __name__ == '__main__':
     main()

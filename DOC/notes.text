@@ -28,9 +28,18 @@ JEZ  x	; jump to instruction x if sense memory is = 0
 JMP  x	; jump to instruction x (unconditional).  If x is greater than the total length of memory, do nothing.
 
 JEQ  x	; jump to instruction x if sense memory is equal to the value in the accumulator
+
 STO  x	; store x in the accumulator.
 CPY  x	; copy the sense memory to the accumulator (x is ignored)
 ADD  x	; add x to the accumulator (-x to subtract)
+
+JAL  x	; jump to instruction x if accumulator is < 0
+JAG  x	; jump to instruction x if accumulator is > 0
+JAE  x	; jump to instruction x if accumulator is = 0
+
+RND  x	; add random number from 0 to 1 to accumulator (x is ignored)
+CRD  x	; set accumulator to 0 then add a random number from 0 to 1 to accumulator (x is ignored)
+
 NOP  x	; do nothing (x is ignored)
 
 Energy is depleted at each cycle at the following rates:
