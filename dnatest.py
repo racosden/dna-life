@@ -41,12 +41,14 @@ class Organism(object):
             print "Current ip          =\t%d" % self.ip
             print "Current position    =\t(%d, %d)" % self.pos
             print "Facing              =\t%s" % facing_text
-            print "Current instruction =\t%s" % current_instruction
+            print "Current instruction =\t%s" % (current_instruction,)
 
         self.ip = self.ip + 1
 
         if "MOV" in current_instruction:
-            length = int(current_instruction[len("MOV") + 1:])
+            print current_instruction
+            length = current_instruction[1]
+            print length
             x, y = self.facing
             while (length > 0):
                 self.pos = (self.pos[0] + x, self.pos[1] + y)
@@ -75,7 +77,7 @@ class Organism(object):
 def main():
     tick = 1
     dna1 = ["MOV 1", "TUR 1", "MOV 1", "TUL 1"]
-    dna2 = ["MOV 2", "TUR 1", "TUR 1", "MOV 1", "TUL 1"]
+    dna2 = [('MOV', 2), ('TUR', 1), ('TUR', 1), ('MOV', 1), ('TUL', 1)]
     ecoli = Organism((0,0), EAST, dna1)
     bcoli = Organism((10, 10), SOUTH, dna2)
 
