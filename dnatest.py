@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
+import numpy as np
+
 DEBUG = True
+BOUNDARIES = True
+
+MAX_X = MAX_Y = 1000
 
 NORTH = (0, -1)
 EAST  = (1, 0)
@@ -18,8 +23,9 @@ class Organism(object):
         self.energy_level = 100
         self.age          = 0
         self.memory       = memory
+        self.sense        = 0
         self.acc          = []
-    def run(self):
+    def run(self, arena):
         current_instruction = ""
 
         try:
@@ -41,6 +47,7 @@ class Organism(object):
             print "Current ip          =\t%d" % self.ip
             print "Current position    =\t(%d, %d)" % self.pos
             print "Facing              =\t%s" % facing_text
+            print "Sense memory        =\t%d" % self.sense
             print "Current instruction =\t%s" % (current_instruction,)
 
         self.ip = self.ip + 1
@@ -73,21 +80,62 @@ class Organism(object):
 
             self.facing = newfacing
 
+        if "SEN" in current_instruction:
+            start_pos = self.pos
+            end_pos = self.pos
+
+            length = current_instruction[1]
+
+            if length > 0:
+                if self.facing == NORTH:
+                    end_pos = (self.pos[0], self.pos[1] - length)
+                    if BOUNDARIES:
+                        if end_pos[1] < 0:
+                            end_pos[1] = 0
+                elif self.facing == SOUTH:
+                    end_pos = (self.pos[0], self.pos[1] + length)
+                    if BOUNDARIES:
+                        if end_pos[1] > MAX_Y:
+                            end_pos[1] = MAX_Y
+                elif self.facing == EAST:
+                    end_pos = (self.pos[0] + length, self.pos[1])
+                    if BOUNDARIES:
+                        if end_pos[0] > MAX_X:
+                            end_pos[1] = MAX_X
+                elif self.facing == WEST:
+                    end_pos = (self.pos[0] - length, self.pos[1])
+                    if BOUNDARIES:
+                        if end_pos[0] < 0:
+                            end_pos[0] = 0
+
+
+
+            # start_pos now contains the current position of the organism
+            # end_pos contains the end of the 'sense line'
+
+            self.sense = arena[end_pos]
+
 
 def main():
     tick = 1
-    dna1 = ["MOV 1", "TUR 1", "MOV 1", "TUL 1"]
-    dna2 = [('MOV', 2), ('TUR', 1), ('TUR', 1), ('MOV', 1), ('TUL', 1)]
-    ecoli = Organism((0,0), EAST, dna1)
+    # dna1 = [('MOV' 1), ('TUR' 1), ('MOV' 1), ('TUL' 1)]
+    # dna2 = [('MOV', 2), ('TUR', 1), ('TUR', 1), ('MOV', 1), ('TUL', 1)]
+    dna2 = [('SEN', 1)]
+    #ecoli = Organism((0,0), EAST, dna1)
     bcoli = Organism((10, 10), SOUTH, dna2)
 
-    for i in xrange(20):
+    arena = np.zeros((MAX_X, MAX_Y))
+    arena[bcoli.pos] = 1
+
+    arena[10, 11] = 10 # put food directly in front of bcoli
+
+    for i in xrange(2):
         print "\nTick\t\t    =\t%d" % tick
         tick = tick + 1
         # print "Ecoli:"
         # ecoli.run()
         print "Bcoli:"
-        bcoli.run()
+        bcoli.run(arena)
 
 if __name__ == '__main__':
     main()
