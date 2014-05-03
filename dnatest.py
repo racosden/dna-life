@@ -116,7 +116,7 @@ class Organism(object):
                     end_pos = (self.pos[0] + length, self.pos[1])
                     if BOUNDARIES:
                         if end_pos[0] > MAX_X:
-                            end_pos[1] = MAX_X
+                            end_pos[0] = MAX_X
                 elif self.facing == WEST:
                     end_pos = (self.pos[0] - length, self.pos[1])
                     if BOUNDARIES:
