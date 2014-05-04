@@ -1,0 +1,12 @@
+DNA-Life
+Artificial life in python
+
+Make organisms out of 'DNA' which is an assembly-like programming language.
+Organisms compete for food in an 'arena', a finite two-dimensional grid world.
+Organisms will 'reproduce' and pass along their DNA to their offspring, with
+a small chance of mutation.
+
+In this way, hopefully efficent organisms will evolve over time.  It should be
+interesting to see which programs survive and which fail.
+
+See the file 'notes.text' in the DOC directory for more detailed information.
